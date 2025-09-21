@@ -1,26 +1,26 @@
 # ---- Stage 1: Build the application ----
-# Use a Maven image to build the project
+# This image for the build stage is correct and available
 FROM maven:3-eclipse-temurin-24 AS build
 
 WORKDIR /app
 
-# Copy the pom.xml and download dependencies first for caching
+# Copy the pom.xml and download dependencies
 COPY pom.xml .
 RUN mvn dependency:go-offline
 
-# Copy the rest of the source code and build the application
+# Copy the source code and build the application
 COPY src ./src
 RUN mvn package -DskipTests
 
 # ---- Stage 2: Create the final, smaller image ----
-# Use a slim Java runtime image for the final product
-FROM eclipse-temurin:24-jdk-jammy
+# CORRECTED: Use the generic '24-jdk' tag, which is verified to exist.
+FROM eclipse-temurin:24-jdk
 
 WORKDIR /app
 
 # Copy the JAR file from the 'build' stage
-# IMPORTANT: Replace this with your actual JAR file name
-COPY --from=build /app/target/ems-backend-0.0.1-SNAPSHOT.jar app.jar
+# Replace 'your-app-name-0.0.1-SNAPSHOT.jar' with your actual JAR file name
+COPY --from=build /app/target/your-app-name-0.0.1-SNAPSHOT.jar app.jar
 
 EXPOSE 8080
 
