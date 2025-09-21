@@ -1,16 +1,27 @@
-# Use a slim and secure Java runtime as the base image
-FROM eclipse-temurin:17-jre-jammy
+# ---- Stage 1: Build the application ----
+# Use a Maven image to build the project
+FROM maven:3.8-eclipse-temurin-17 AS build
 
-# Set the working directory inside the container
 WORKDIR /app
 
-# Copy the executable JAR file from the build stage to the container
-# Replace 'your-app-name-0.0.1-SNAPSHOT.jar' with the actual name of your JAR file
-COPY target/ems-backend-0.0.1-SNAPSHOT.jar app.jar
+# Copy the pom.xml and download dependencies first for caching
+COPY pom.xml .
+RUN mvn dependency:go-offline
 
-# Expose the port the app runs on (Render will map this)
+# Copy the rest of the source code and build the application
+COPY src ./src
+RUN mvn package -DskipTests
+
+# ---- Stage 2: Create the final, smaller image ----
+# Use a slim Java runtime image for the final product
+FROM eclipse-temurin:17-jre-jammy
+
+WORKDIR /app
+
+# Copy the JAR file from the 'build' stage
+# IMPORTANT: Replace this with your actual JAR file name
+COPY --from=build /app/target/ems-backend-0.0.1-SNAPSHOT.jar app.jar
+
 EXPOSE 8080
 
-# The command to run the application
 ENTRYPOINT ["java", "-jar", "app.jar"]
-
