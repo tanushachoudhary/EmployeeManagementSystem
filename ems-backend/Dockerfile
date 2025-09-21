@@ -1,6 +1,6 @@
 # ---- Stage 1: Build the application ----
 # Use a Maven image to build the project
-FROM maven:3.8-eclipse-temurin-17 AS build
+FROM maven:3-eclipse-temurin-24 AS build
 
 WORKDIR /app
 
@@ -14,7 +14,7 @@ RUN mvn package -DskipTests
 
 # ---- Stage 2: Create the final, smaller image ----
 # Use a slim Java runtime image for the final product
-FROM eclipse-temurin:17-jre-jammy
+FROM eclipse-temurin:24-jre-jammy
 
 WORKDIR /app
 
