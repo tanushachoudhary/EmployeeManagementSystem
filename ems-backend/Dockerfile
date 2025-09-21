@@ -14,7 +14,7 @@ RUN mvn package -DskipTests
 
 # ---- Stage 2: Create the final, smaller image ----
 # Use a slim Java runtime image for the final product
-FROM eclipse-temurin:24-jre-jammy
+FROM eclipse-temurin:24-jdk-jammy
 
 WORKDIR /app
 
